@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <!-- 위 3개의 메타 태그는 *반드시* head 태그의 처음에 와야합니다; 어떤 다른 콘텐츠들은 반드시 이 태그들 *다음에* 와야 합니다 -->
+    <title>회원가입</title>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <!-- 합쳐지고 최소화된 최신 CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+
+    <!-- 부가적인 테마 -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap-theme.min.css">
+
+    <!-- 합쳐지고 최소화된 최신 자바스크립트 -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+  </head>
+  <body>
+    
+    <div class="container theme-showcase" role="main">
+            <form class="form-signin" id="createMemberForm">
+            <h2 class="form-signin-heading">회원가입</h2>
+            <div class="col-lg-8">
+                <label for="email" class="sr-only">Email address</label>
+                <input type="email" id="email" name="email" class="form-control" placeholder="이메일" required autofocus>
+            </div>
+            <div class="col-lg-2">
+                <button type="button" class="btn btn-sm btn-primary btn-block" onclick="getAuthNumber()">인증번호 전송</button>
+            </div>
+            <br>
+            <div class="col-lg-8">
+                <label for="userPw" class="sr-only">Password</label>
+                <input type="password" id="userPw" name="userPw" class="form-control" placeholder="비밀번호" required autofocus>
+            </div>
+            <br>
+            <div class="col-lg-8">
+                <label for="userName" class="sr-only">Name</label>
+                <input type="text" id="userName" name="userName" class="form-control" placeholder="이름" required autofocus>
+            </div>
+            <br>
+            <div class="col-lg-8">
+                <label for="authNumber" class="sr-only">authNumber</label>
+                <input type="email" id="authNumber" name="authNumber" class="form-control" placeholder="인증번호" required autofocus>
+            </div>
+            <br>
+            <div class="col-lg-2">
+                <span id="timer" class="alert alert-info" role="alert"></span>
+            </div>
+            <div class="col-lg-2">
+                <button type="button" class="btn btn-sm btn-primary btn-block" onclick="findAuthNum()">인증번호 확인</button>
+            </div>
+            <div class="col-lg-8">
+                <button class="btn btn-lg btn-primary btn-block" type="button" onclick="createMember()">회원가입</button>
+            </div>
+            
+            </form>
+        
+    </div> <!-- /container -->
+  </body>
+
+  <script>
+    var authNum =''; //서버에서 전달한 인증번호를 가지고있을 변수
+    var clearTimer;
+    //화면 열리자 마자 실행.
+    $(document).ready(function(){
+        //document.getElementById("timer").style.display= "none"; //타이머 span 안보이게
+        document.getElementById("timer").style.display= "block"; //타이머 span 보이게
+    });
+    
+    //타이머
+    function getAuthTimer(){
+            //인증번호값이 넘어오면 타이머 작동.
+            var authTimer = new $ComTimer();
+            authTimer.comSecond = 180; // 제한 시간
+        
+            authTimer.fnCallback = function(){alert("다시인증을 시도해주세요.")}; // 제한 시간 만료 메세지
+        
+            authTimer.timer =  setInterval(function(){
+                authTimer.fnTimer();
+            },1000); 
+        
+            authTimer.domId = document.getElementById("timer");
+            
+            clearTimer = authTimer.timer;
+
+    }
+    function $ComTimer(){
+             //prototype extend
+        }
+
+    $ComTimer.prototype = {
+        comSecond : ""
+        , fnCallback : function(){}
+        , timer : ""
+        , domId : ""
+        , fnTimer : function(){
+            var m = Math.floor(this.comSecond / 60) + "분 " + (this.comSecond % 60) + "초";	// 남은 시간 계산
+            this.comSecond--;					// 1초씩 감소
+            //console.log(m);
+            this.domId.innerText = m;
+            if (this.comSecond < 0) {			// 시간이 종료 되었으면..
+                clearInterval(this.timer);		// 타이머 해제
+                authNum =''; //시간이 종료되었으면 서버에서 넘겨준 변수 값 초기화.
+                alert("인증시간이 초과하였습니다. 다시 인증해주시기 바랍니다.");
+                location.href = "http://localhost:3000/member/createMember";
+                window.close();                    
+                    
+            }
+                
+        }
+        ,fnStop : function(){
+            clearInterval(this.timer);
+        }
+    }
+    /**
+    * checkAuth = 회원이 입력한 인증번호값을 가진 변수 
+    */
+    function findAuthNum(){
+        let checkAuth = document.getElementById("authNumber").value; //입력한 인증번호값을 받아온다.
+        let formData = $("#createMemberForm").serialize(); //폼데이터 json 형태로
+        if(authNum === checkAuth){
+                
+            document.getElementById("email").readOnly= true; //이메일값 변경 불가.
+            document.getElementById("authNumber").readOnly= true; //인증번호 변경불가.
+                
+            $("#timer").text("인증완료");
+            //document.getElementById("timer").text("인증완료");
+            clearInterval(clearTimer); //타이머 멈추기
+
+            $.ajax({
+            type: "POST",
+            url: "/auth/mail/auth",
+            data: formData,
+            success: function(result){
+                alert("확인");
+            },
+            error: function(err){
+                console.log("err : ",err);
+            }
+            });
+        }
+        
+    }
+
+    //인증번호 함수
+    function getAuthNumber(){
+        let getUserEmail = document.getElementById("email").value; //회원가입 신청한 이메일주소.
+
+        let regEmail = /[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*.[a-zA-Z]$/i;
+        if(regEmail.test(getUserEmail) === true){
+            $.ajax({
+            type: "POST",
+            url: "/auth/mail",
+            data: {'email':getUserEmail},
+            success: function(result){
+                console.log("result : ", result); // response된 인증번호값이 넘어온다.
+                authNum = result; //서버에서 넘겨준 인증번호를 변수에 담는다.
+                getAuthTimer(); //타이머 작동
+                
+            },
+            error: function(err){
+                console.log("err : ",err);
+            }
+            });   
+        } else{
+            alert('이메일 형식이 맞지않습니다. 다시한번 확인해주세요');
+        }
+    }
+
+    //회원가입 함수.
+    function createMember(){
+        let formData = $("#createMemberForm").serialize();
+        $.ajax({
+            type: "POST",        
+            url: "/member/createMember",
+            data: formData,
+            success: function(result){
+               if(result.code === 0){
+                   alert(result.msg);
+                   window.location.href="http://localhost:3000";
+               } else {
+                   alert(result.msg);
+               }
+               
+            },
+            error: function(err){
+                console.log(err);
+                }
+        });
+    }
+  </script>
+</html>
