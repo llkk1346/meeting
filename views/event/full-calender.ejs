@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <!-- 위 3개의 메타 태그는 *반드시* head 태그의 처음에 와야합니다; 어떤 다른 콘텐츠들은 반드시 이 태그들 *다음에* 와야 합니다 -->
+    <title><%= title%></title>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <!-- 합쳐지고 최소화된 최신 CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+
+    <!-- 부가적인 테마 -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap-theme.min.css">
+
+    <!-- 합쳐지고 최소화된 최신 자바스크립트 -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+    <!-- fullcalender -->
+    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.8.0/main.min.css' rel='stylesheet' />
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.8.0/main.min.js'></script>
+    <!-- fullcalendar 언어 CDN -->
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.8.0/locales-all.min.js'></script>
+
+
+
+    <style>
+        /* body 스타일 */
+        html, body {
+            overflow: hidden;
+            font-family: Arial, Helvetica Neue, Helvetica, sans-serif;
+            font-size: 14px;
+        }
+        /* 캘린더 위의 해더 스타일(날짜가 있는 부분) */
+        .fc-header-toolbar {
+            padding-top: 1em;
+            padding-left: 1em;
+            padding-right: 1em;
+        }
+    </style>
+</head>
+
+<body>
+    
+<div class="container theme-showcase" role="main">
+    <div><h3> <%= findUserId%> 님</h3></div>
+    <div id="calendar-container">
+        <div id="calendar"></div>
+    </div>
+
+</div> <!-- /container -->
+
+<!-- Button trigger modal -->
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalCenter" id="myModals">
+    Launch demo modal
+  </button>
+  
+  <!-- Modal -->
+  <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLongTitle">회의실 예약</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+            <label class="meetingRoom">회의실 목록 : </label>
+            <select class="custom-select" id="meetingRoom">
+                <option>회의실 목록</option>
+                <option>1</option>
+                <option>2</option>
+            </select>
+            <br><br>
+            <label class="meetingTitle">회의 제목 : </label>
+            <div class="inputy-group mb-3">
+                <input type="text" class="form-control" id="meetingTitle" name="meetingTitle" placeholder="회의제목"> 
+            </div>
+            <br><br>
+            <label class="meetingTitle">회의 기간 : </label>
+            <input type="date" class="form-control" id="meetingDateStartYMD" name="meetingDateStartYMD" placeholder="시작시간">  &  <input type="date" id="meetingDateEndYMD" name="meetingDateEndYMD" placeholder="시작시간">
+            <br><br>
+            <label class="meetingTitle">회의 시간 : </label>
+            <input type="text" class="form-control" id="meetingTitle" name="meetingTitle" placeholder="회의제목"> 
+            <br><br>
+            <label class="meetingContent">회의 내용 : </label>
+            <br>
+            <textarea id="meetingContent" name="meetingContent"></textarea>
+            <br><br>
+            <label class="meetingTitle">회의 인원 : </label>
+            <select>
+                <option></option>
+            </select>
+
+            
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary">Save changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+
+<script>
+    (function(){
+        $(function(){
+            // calendar element 취득
+            var calendarEl = $('#calendar')[0];
+            // full-calendar 생성하기
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                height: '700px', // calendar 높이 설정
+                expandRows: true, // 화면에 맞게 높이 재설정
+                slotMinTime: '08:00', // Day 캘린더에서 시작 시간
+                slotMaxTime: '20:00', // Day 캘린더에서 종료 시간
+                // 해더에 표시할 툴바
+                // title : 현재날짜 (월/주/일) / prev: 달력을 (월/주/일) 전으로 이동 / next: 달력을 (월/주/일) 후로 이동
+                // / prevYear: 달력을 1년 전으로 이동 / nextYear : 달력을 1년 후로 이동 / today: 현재날짜 / a view name: 사용가능한 캘린더로 전환(캘린더 view 이름)
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+                },
+                initialView: 'dayGridMonth', // 초기 로드 될때 보이는 캘린더 화면(기본 설정: 달)
+                //initialDate: '2021-07-15', // 초기 날짜 설정 (설정하지 않으면 오늘 날짜가 보인다.)
+                navLinks: true, // 날짜를 선택하면 Day 캘린더나 Week 캘린더로 링크
+                editable: true, // 수정 가능?
+                selectable: true, // 달력 일자 드래그 설정가능
+                nowIndicator: true, // 현재 시간 마크
+                dayMaxEvents: true, // 이벤트가 오버되면 높이 제한 (+ 몇 개식으로 표현)
+                locale: 'ko', // 한국어 설정
+                eventAdd: function(obj) { // 이벤트가 추가되면 발생하는 이벤트
+                    console.log(obj);
+                },
+                eventChange: function(obj) { // 이벤트가 수정되면 발생하는 이벤트
+                    console.log(obj);
+                },
+                eventRemove: function(obj){ // 이벤트가 삭제되면 발생하는 이벤트
+                    console.log(obj);
+                },
+                select: function(arg) { // 캘린더에서 드래그로 이벤트를 생성할 수 있다.
+                    
+                    document.getElementById('myModals').click(function(){
+                            calendar.addEvent({
+                                title: document.getElementById('meetingTitle').value()
+                            });
+                            calendar.unselect()
+                    });
+                    // $('#myModal').on('shown.bs.modal', function(){
+                    //     $('#myInput').trigger('focus');
+                    // })
+                    // var title = prompt('Event Title:');
+                    // if (title) {
+                    //     $("#getCodeModal").modal('show');
+                    //     // calendar.addEvent({
+                    //     //     title: title,
+                    //     //     start: arg.start,
+                    //     //     end: arg.end,
+                    //     //     allDay: arg.allDay
+                    //     // })
+                    // }
+                    // 
+                },
+                // 이벤트
+                // title: '' -> String 이벤트에 표시될 제목
+                // start: '' -> ex) '2022-01-04' Date object, 이벤트 시작 날짜(& 시간)
+                //              ex) '2022-01-04T16:00:00'
+                // end: '' -> ex) '2022-01-04' Date object, 이벤트 종료 날짜(& 시간)
+                events: [
+                    {
+                        title: 'All Day Event',
+                        start: '2021-07-01',
+                    },
+                    {
+                        title: 'Long Event',
+                        start: '2021-07-07',
+                        end: '2021-07-10'
+                    },
+                    {
+                        groupId: 999,
+                        title: 'Repeating Event',
+                        start: '2021-07-09T16:00:00'
+                    },
+                    {
+                        groupId: 999,
+                        title: 'Repeating Event',
+                        start: '2021-07-16T16:00:00'
+                    },
+                    {
+                        title: 'Conference',
+                        start: '2021-07-11',
+                        end: '2021-07-13'
+                    },
+                    {
+                        title: 'Meeting',
+                        start: '2021-07-12T10:30:00',
+                        end: '2021-07-12T12:30:00'
+                    },
+                    {
+                        title: 'Lunch',
+                        start: '2021-07-12T12:00:00'
+                    },
+                    {
+                        title: 'Meeting',
+                        start: '2021-07-12T14:30:00'
+                    },
+                    {
+                        title: 'Happy Hour',
+                        start: '2021-07-12T17:30:00'
+                    },
+                    {
+                        title: 'Dinner',
+                        start: '2021-07-12T20:00:00'
+                    },
+                    {
+                        title: 'Birthday Party',
+                        start: '2021-07-13T07:00:00'
+                    },
+                    {
+                        title: 'Click for Google',
+                        url: 'http://google.com/', // 클릭시 해당 url로 이동
+                        start: '2021-07-28'
+                    }
+                ]
+            });
+            // 캘린더 랜더링
+            calendar.render();
+        });
+    })();
+$(document).ready(function(){
+    $('.selectpicker').selectpicker();
+    $("#myModal").modal("show");
+})
+
+</script>
+</html>

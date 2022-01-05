@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const {role} = require('../models/');
-
+const {isLoggedIn, isNotLoggedIn} = require('./middlewares');
 /* GET home page. */
 router.get('/', async function(req, res, next) {
   let rows = await findRole();

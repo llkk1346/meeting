@@ -37,7 +37,7 @@ Object.keys(db).forEach(modelName => {
 //모델 동기화 방법2.
 //sequelize.sync({}) => 설정한 모든 모델을 한 번에 동기화.
 // force: false -> 있으면 만들지않는다. true ->무조건 다시만든다.
-sequelize.sync({force: true}) 
+sequelize.sync({force: false}) 
   .then(()=>{
     console.log("데이터베이스 연결 성공");
   })
