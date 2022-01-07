@@ -14,13 +14,14 @@ exports.signUp = async (req, res)=>{
             //암호화 매개변수 5개 비밀번호, salt, 반복횟수, 비밀번호 길이, 해시 알고리즘 반복횟수는 길수록 보안성이 높다.
             //암호화된 비밀번호 변수
             const encryptionUserPw = crypto.pbkdf2Sync(req.body.userPw, salt, 102934, 64, 'sha512').toString('base64'); 
-            console.log(req.body);
+
             await Member.memberCreate(req, res, salt, encryptionUserPw); //회원가입.
             
             //가입한 계정찾기
             let findMember = await Member.findMemberId(req, res);
             //인증번호 테이블에 FK 업데이트
-            await Auth.authUpdate(findMember);
+            console.log("AAAA : ",findMember[0].id);
+            await Auth.authUpdate(req, res, findMember[0].id, findMember[0].user_email);
         } else {
              result =100; //조회된 회원이있으면.
         }

@@ -38,20 +38,31 @@
 </head>
 
 <body>
-    
-<div class="container theme-showcase" role="main">
-    <div><h3> <%= findUserId%> 님</h3></div>
-    <div id="calendar-container">
-        <div id="calendar"></div>
-    </div>
+    <% if(findUserId === undefined){%>
+        <div class="container theme-showcase" role="main">
+            <div><h3> 손님 </h3></div>
+            <div id="calendar-container">
+                <div id="calendar"></div>
+            </div>
+        
+        </div> <!-- /container -->
+    <%}%>
+    <% if(findUserId !=undefined){%>
+        <div class="container theme-showcase" role="main">
+            <div><h3> <%= findUserId%> 님</h3></div>
+            <div id="calendar-container">
+                <div id="calendar"></div>
+            </div>
+        
+        </div> <!-- /container -->
+    <%}%>   
 
-</div> <!-- /container -->
 
 <!-- Button trigger modal -->
+<div id=myModalDiv>
 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalCenter" id="myModals">
-    Launch demo modal
-  </button>
-  
+</button>
+</div>
   <!-- Modal -->
   <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
@@ -63,38 +74,104 @@
           </button>
         </div>
         <div class="modal-body">
-            <label class="meetingRoom">회의실 목록 : </label>
-            <select class="custom-select" id="meetingRoom">
-                <option>회의실 목록</option>
-                <option>1</option>
-                <option>2</option>
-            </select>
-            <br><br>
-            <label class="meetingTitle">회의 제목 : </label>
-            <div class="inputy-group mb-3">
-                <input type="text" class="form-control" id="meetingTitle" name="meetingTitle" placeholder="회의제목"> 
+        <form id='meetingForm'>
+            <div class="row">
+                <div class="col-sm-12">
+                    <label class="meetingRoom"></label>
+                    <select class="form-control" id="meetingRoom" name="meetingRoom">
+                        <option value="0">회의실 목록</option>
+                        <%
+                            for(let i=0; i<meetingRoom.length; i++){
+                                let room = meetingRoom[i]; 
+                        %>
+                        <option value= <%=room.id%>><%=room.room_name%> (최대인원수 : <%=room.count%>)</option>
+                        <%}%>
+                    </select>
+                </div>
+            </div>    
+            <div class="row">
+                <div class="col-sm-12">
+                    <label class="meetingTitle"></label>
+                    <input type="text" class="form-control" id="meetingTitle" name="meetingTitle" placeholder="회의제목"> 
+                </div>
             </div>
-            <br><br>
-            <label class="meetingTitle">회의 기간 : </label>
-            <input type="date" class="form-control" id="meetingDateStartYMD" name="meetingDateStartYMD" placeholder="시작시간">  &  <input type="date" id="meetingDateEndYMD" name="meetingDateEndYMD" placeholder="시작시간">
-            <br><br>
-            <label class="meetingTitle">회의 시간 : </label>
-            <input type="text" class="form-control" id="meetingTitle" name="meetingTitle" placeholder="회의제목"> 
-            <br><br>
-            <label class="meetingContent">회의 내용 : </label>
             <br>
-            <textarea id="meetingContent" name="meetingContent"></textarea>
-            <br><br>
-            <label class="meetingTitle">회의 인원 : </label>
-            <select>
-                <option></option>
-            </select>
-
-            
+            <div class="row">
+                <div class="col-sm-6">
+                    <input type="date" class="form-control" id="meetingDateStartYMD" name="meetingDateStartYMD"> 
+                </div>
+                
+                <div class="col-sm-3">
+                    <select class="form-control" id="meetingStartTimeY" name="meetingStartTimeY">
+                        <%
+                            for(let i=8; i<20; i++){
+                        %>
+                        <option value= <%=i%>><%=i%>시 </option>
+                        <%}%>
+                    </select> 
+                </div>
+                <div class="col-sm-3">
+                    <select class="form-control" id="meetingStartTimeM" name="meetingStartTimeM">
+                        <%
+                            for(let i=0; i<61; i+=10){
+                        %>
+                        <option value= <%=i%>><%=i%>분 </option>
+                        <%}%>
+                    </select>
+                    
+                </div>
+            </div>
+            <br>
+            <div class="row">
+                <div class="col-sm-6">
+                    <input type="date" class="form-control" id="meetingDateEndYMD" name="meetingDateEndYMD">
+                </div>
+                <div class="col-sm-3">
+                    <select class="form-control" id="meetingEndTimeY" name="meetingEndTimeY">
+                        <%
+                            for(let i=8; i<20; i++){
+                        %>
+                        <option value= <%=i%>><%=i%>시 </option>
+                        <%}%>
+                    </select> 
+                </div>
+                <div class="col-sm-3">
+                    <select class="form-control" id="meetingEndTimeM" name="meetingEndTimeM">
+                        <%
+                            for(let i=0; i<61; i+=10){
+                        %>
+                        <option value= <%=i%>><%=i%>분 </option>
+                        <%}%>
+                    </select>
+                    
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <label class="meetingContent"></label>
+                    <textarea id="meetingContent" name="meetingContent" class="form-control"></textarea>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <label></label>
+                    <select class="form-control" id="peoples" name="peoples">
+                        <option value="0">인원</option>
+                        <%
+                            for(let i=1; i<21; i++){
+                        %>
+                        <option value=<%=i%>><%=i%>명</option>
+                        <%}%>
+                    </select>
+                </div>
+            </div>
+            <input type="hidden" id="userName" name="userName" value=<%=findUserUID%>>
+        </form>    
         </div>
+        
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-primary">Save changes</button>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
+          <button type="button" class="btn btn-primary" onclick="saveMeeting()">예약</button>
         </div>
       </div>
     </div>
@@ -102,133 +179,141 @@
 </body>
 
 <script>
+// 인원수
+var count;
+
+
     (function(){
         $(function(){
-            // calendar element 취득
-            var calendarEl = $('#calendar')[0];
-            // full-calendar 생성하기
-            var calendar = new FullCalendar.Calendar(calendarEl, {
-                height: '700px', // calendar 높이 설정
-                expandRows: true, // 화면에 맞게 높이 재설정
-                slotMinTime: '08:00', // Day 캘린더에서 시작 시간
-                slotMaxTime: '20:00', // Day 캘린더에서 종료 시간
-                // 해더에 표시할 툴바
-                // title : 현재날짜 (월/주/일) / prev: 달력을 (월/주/일) 전으로 이동 / next: 달력을 (월/주/일) 후로 이동
-                // / prevYear: 달력을 1년 전으로 이동 / nextYear : 달력을 1년 후로 이동 / today: 현재날짜 / a view name: 사용가능한 캘린더로 전환(캘린더 view 이름)
-                headerToolbar: {
-                    left: 'prev,next today',
-                    center: 'title',
-                    right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
-                },
-                initialView: 'dayGridMonth', // 초기 로드 될때 보이는 캘린더 화면(기본 설정: 달)
-                //initialDate: '2021-07-15', // 초기 날짜 설정 (설정하지 않으면 오늘 날짜가 보인다.)
-                navLinks: true, // 날짜를 선택하면 Day 캘린더나 Week 캘린더로 링크
-                editable: true, // 수정 가능?
-                selectable: true, // 달력 일자 드래그 설정가능
-                nowIndicator: true, // 현재 시간 마크
-                dayMaxEvents: true, // 이벤트가 오버되면 높이 제한 (+ 몇 개식으로 표현)
-                locale: 'ko', // 한국어 설정
-                eventAdd: function(obj) { // 이벤트가 추가되면 발생하는 이벤트
-                    console.log(obj);
-                },
-                eventChange: function(obj) { // 이벤트가 수정되면 발생하는 이벤트
-                    console.log(obj);
-                },
-                eventRemove: function(obj){ // 이벤트가 삭제되면 발생하는 이벤트
-                    console.log(obj);
-                },
-                select: function(arg) { // 캘린더에서 드래그로 이벤트를 생성할 수 있다.
-                    
-                    document.getElementById('myModals').click(function(){
-                            calendar.addEvent({
-                                title: document.getElementById('meetingTitle').value()
-                            });
-                            calendar.unselect()
-                    });
-                    // $('#myModal').on('shown.bs.modal', function(){
-                    //     $('#myInput').trigger('focus');
-                    // })
-                    // var title = prompt('Event Title:');
-                    // if (title) {
-                    //     $("#getCodeModal").modal('show');
-                    //     // calendar.addEvent({
-                    //     //     title: title,
-                    //     //     start: arg.start,
-                    //     //     end: arg.end,
-                    //     //     allDay: arg.allDay
-                    //     // })
-                    // }
-                    // 
-                },
-                // 이벤트
-                // title: '' -> String 이벤트에 표시될 제목
-                // start: '' -> ex) '2022-01-04' Date object, 이벤트 시작 날짜(& 시간)
-                //              ex) '2022-01-04T16:00:00'
-                // end: '' -> ex) '2022-01-04' Date object, 이벤트 종료 날짜(& 시간)
-                events: [
-                    {
-                        title: 'All Day Event',
-                        start: '2021-07-01',
+                // calendar element 취득
+                var calendarEl = $('#calendar')[0];
+                // full-calendar 생성하기
+                var calendar = new FullCalendar.Calendar(calendarEl, {
+                    height: '700px', // calendar 높이 설정
+                    expandRows: true, // 화면에 맞게 높이 재설정
+                    slotMinTime: '08:00', // Day 캘린더에서 시작 시간
+                    slotMaxTime: '20:00', // Day 캘린더에서 종료 시간
+                    // 해더에 표시할 툴바
+                    // title : 현재날짜 (월/주/일) / prev: 달력을 (월/주/일) 전으로 이동 / next: 달력을 (월/주/일) 후로 이동
+                    // / prevYear: 달력을 1년 전으로 이동 / nextYear : 달력을 1년 후로 이동 / today: 현재날짜 / a view name: 사용가능한 캘린더로 전환(캘린더 view 이름)
+                    headerToolbar: {
+                        left: 'prev,next today',
+                        center: 'title',
+                        right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
                     },
-                    {
-                        title: 'Long Event',
-                        start: '2021-07-07',
-                        end: '2021-07-10'
+                    initialView: 'dayGridMonth', // 초기 로드 될때 보이는 캘린더 화면(기본 설정: 달)
+                    //initialDate: '2021-07-15', // 초기 날짜 설정 (설정하지 않으면 오늘 날짜가 보인다.)
+                    navLinks: true, // 날짜를 선택하면 Day 캘린더나 Week 캘린더로 링크
+                    editable: true, // 수정 가능?
+                    selectable: true, // 달력 일자 드래그 설정가능
+                    nowIndicator: true, // 현재 시간 마크
+                    dayMaxEvents: true, // 이벤트가 오버되면 높이 제한 (+ 몇 개식으로 표현)
+                    locale: 'ko', // 한국어 설정
+                    eventAdd: function(obj) { // 이벤트가 추가되면 발생하는 이벤트
+                        console.log(obj);
                     },
-                    {
-                        groupId: 999,
-                        title: 'Repeating Event',
-                        start: '2021-07-09T16:00:00'
+                    eventChange: function(obj) { // 이벤트가 수정되면 발생하는 이벤트
+                        console.log(obj);
                     },
-                    {
-                        groupId: 999,
-                        title: 'Repeating Event',
-                        start: '2021-07-16T16:00:00'
+                    eventRemove: function(obj){ // 이벤트가 삭제되면 발생하는 이벤트
+                        console.log(obj);
                     },
-                    {
-                        title: 'Conference',
-                        start: '2021-07-11',
-                        end: '2021-07-13'
+                    select: function(arg) { // 캘린더에서 드래그로 이벤트를 생성할 수 있다.
+                        let meetingStart = document.getElementById("meetingDateStartYMD");
+                        let meetingEnd = document.getElementById("meetingDateEndYMD");
+
+                        meetingStart.value = arg.start.toISOString().slice(0,10);
+                        //meetingEnd.value = arg.end.toISOString().slice(0,10);
+                        meetingEnd.value = arg.end.toISOString().slice(0,10);
+                        
+                        
+                        
+                        document.getElementById('myModals').click();
+
+                        
+                        // calendar.addEvent({
+                        //     title: document.getElementById('meetingTitle').value,
+                        //     start: document.getElementById('meetingDateStartYMD').value,
+                        //     end: document.getElementById('meetingDateEndYMD').value,
+                        //     //allDay: arg.allDay
+                        // })
+                        
+                        // calendar.unselect()
+                        
                     },
-                    {
-                        title: 'Meeting',
-                        start: '2021-07-12T10:30:00',
-                        end: '2021-07-12T12:30:00'
-                    },
-                    {
-                        title: 'Lunch',
-                        start: '2021-07-12T12:00:00'
-                    },
-                    {
-                        title: 'Meeting',
-                        start: '2021-07-12T14:30:00'
-                    },
-                    {
-                        title: 'Happy Hour',
-                        start: '2021-07-12T17:30:00'
-                    },
-                    {
-                        title: 'Dinner',
-                        start: '2021-07-12T20:00:00'
-                    },
-                    {
-                        title: 'Birthday Party',
-                        start: '2021-07-13T07:00:00'
-                    },
-                    {
-                        title: 'Click for Google',
-                        url: 'http://google.com/', // 클릭시 해당 url로 이동
-                        start: '2021-07-28'
+                    // 이벤트
+                    // title: '' -> String 이벤트에 표시될 제목
+                    // start: '' -> ex) '2022-01-04' Date object, 이벤트 시작 날짜(& 시간)
+                    //              ex) '2022-01-04T16:00:00'
+                    // end: '' -> ex) '2022-01-04' Date object, 이벤트 종료 날짜(& 시간)
+                    events: function(info, succcessCallback, failureCallback){
+                        $.ajax({
+                            type: "GET",
+                            url: "/event/search",
+                            dataType: "json",
+                            success: function(data){
+                                console.log(data);
+                                let list = data;
+                                let events = list.map(function(item){
+                                    return{
+                                        groupId: item.user_name,
+                                        title: item.title,
+                                        start: item.start_date.slice(0,19),
+                                        end: item.end_date.slice(0,19)
+                                    }
+                                })
+                                succcessCallback(events);
+                            },
+                            error: function(error){
+                                console.log(error);
+                            }
+                        });
                     }
-                ]
             });
             // 캘린더 랜더링
             calendar.render();
         });
     })();
+
+function saveMeeting(){
+
+    let formData = $("#meetingForm").serialize();
+
+    //1. DB에 입력 데이터 저장
+    $.ajax({
+            type: "POST",        
+            url: "/event/events",
+            data: formData,
+            success: function(result){
+                console.log(result);
+               if(result.code==400){
+                   alert(result.msg);
+                   return ;
+               } else if(result.code==200){
+                    alert(result.msg);
+                    window.location.href="http://localhost:3000/event/events";
+               }
+            },
+            error: function(err){
+                console.log(err);
+            }
+        });
+    // calendar.addEvent({
+    //     title: meetingTitle.value,
+    //     start: meetingStart.value,
+    //     end: meetingEnd.value,
+    //     //allDay: arg.allDay
+    //                 })
+}
+
+
 $(document).ready(function(){
-    $('.selectpicker').selectpicker();
-    $("#myModal").modal("show");
+    $("#meetingStartTimeY option:eq(0)").prop("selected", true);
+    $("#meetingStartTimeM option:eq(0)").prop("selected", true);
+    $("#meetingEndTimeY option:eq(0)").prop("selected", true);
+    $("#meetingEndTimeM option:eq(0)").prop("selected", true);
+    $("#myModalDiv").hide();
+    
 })
 
 </script>

@@ -6,7 +6,7 @@ const Member = require('../service/memberService.js');
 const {isLoggedIn, isNotLoggedIn} = require('../middlewares');
 
 
-router.get("/createMember", isLoggedIn, (req, res)=>{
+router.get("/createMember", isNotLoggedIn, (req, res)=>{
     res.render("member/createMember");
 })
 
@@ -37,7 +37,6 @@ router.post("/login" ,isNotLoggedIn,async (req, res, next)=>{
                     console.error(loginError);
                     return next(loginError);
                 }
-                console.log("findUserId :11 ", findUserId);
                 return res.redirect('/event/events');
             });
         })(req, res, next);

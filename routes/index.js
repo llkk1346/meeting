@@ -8,19 +8,19 @@ router.get('/', async function(req, res, next) {
   if(rows[0]==undefined){
     await roleCreate();
   }
-  res.render('index', { title: 'Express' });
+  res.render('index', { 'title': '로그인' });
 });
 
 function roleCreate(){
     return new Promise((resolve, reject)=>{
       try{
         role.create({
-          roleUID: '1',
-          roleName: 'USER'
+          id: '1',
+          role_name: 'USER'
         });
         role.create({
-          roleUID: '2',
-          roleName: 'ADMIN'
+          id: '2',
+          role_name: 'ADMIN'
         });
       } catch(err){
         console.log(err);

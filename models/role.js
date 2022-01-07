@@ -1,14 +1,14 @@
 const Sequelize = require('sequelize');
 module.exports = function(sequelize, DataTypes) {
   return sequelize.define('role', {
-    roleUID: {
+    id: {
       type: DataTypes.CHAR(1),
       allowNull: false,
       primaryKey: true,
       comment: "권한UID(고유값)"
 
     },
-    roleName: {
+    role_name: {
       type: DataTypes.STRING(10),
       allowNull: true,
       comment: "권한종류"
@@ -23,7 +23,7 @@ module.exports = function(sequelize, DataTypes) {
         unique: true,
         using: "BTREE",
         fields: [
-          { name: "roleUID" },
+          { name: "id" },
         ]
       },
     ]

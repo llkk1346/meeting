@@ -10,7 +10,6 @@ const Auth = require('../repository/authRepository.js');
 //인증번호 저장
 exports.AuthNumber = async (req, res)=>{
     try {
-        console.log("service : ", req.body);
         await Auth.createAuth(req, res);
     } catch (error) {
         console.log(error);
@@ -48,7 +47,8 @@ exports.authSendMail = async (req, res)=>{
         //옵션값 설정
         const mailOptions = await transporter.sendMail({
             
-            from: "dgko@aimmed.com", //보내는 곳의 이름과 메일주소를입력
+            //from: "dgko@aimmed.com", //보내는 곳의 이름과 메일주소를입력
+            from: "kodg9494@gmail.com", //보내는 곳의 이름과 메일주소를입력
             to: req.body.email, //받는 곳의 메일주소 param => 회원가입창에서 넘겨받은 이메일
             subject: '회원가입을 위한 인증번호를 입력해주세요.',
             html: emailTemplete,

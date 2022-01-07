@@ -1,5 +1,5 @@
 const LocalStrategy = require('passport-local').Strategy;
-const {member} = require('../models');
+const {k_member} = require('../models');
 const crypto = require('crypto');
 
 
@@ -11,9 +11,9 @@ module.exports = (passport) =>{
         try {
             console.log("Check");
             //저장되어있는 유저 비교.
-            const findUserId = await member.findOne({where: {userEmail: email}});
+            const findUserId = await k_member.findOne({where: {user_email: email}});
             if(findUserId){ //로그인 요청한 email 이 있으면
-                const DB_PASSWORD = findUserId.userPw //DB에 저장된 패스워드 가져온다.
+                const DB_PASSWORD = findUserId.user_pw //DB에 저장된 패스워드 가져온다.
                 const DB_SALT = findUserId.salt; //DB에 저장된 salt값 가져온다.
                 const DB_RESULT = DB_PASSWORD + DB_SALT;
     

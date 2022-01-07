@@ -22,6 +22,7 @@ fs
   })
   .forEach(file => {
     const model = require(path.join(__dirname, file))(sequelize, Sequelize.DataTypes);
+    console.log(model);
     db[model.name] = model;
   });
 
@@ -34,6 +35,7 @@ Object.keys(db).forEach(modelName => {
 //모델 동기화 방법 1.
 // ex member.sync({force: true}) //force: true는 실무에서 쓰면안된다. 
 
+//db.reservation.sync({force: true}).then(()=>{console.log("success");}).catch((err)=>{console.log(err);})
 //모델 동기화 방법2.
 //sequelize.sync({}) => 설정한 모든 모델을 한 번에 동기화.
 // force: false -> 있으면 만들지않는다. true ->무조건 다시만든다.

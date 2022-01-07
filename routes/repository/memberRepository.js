@@ -1,24 +1,35 @@
 const express = require('express');
 const router = express.Router();
-const {member} = require('../../models');
+const {k_member} = require('../../models');
 
 //회원가입하려는 이메일주소있는지 찾기
 exports.findMemberId = async (req, res)=>{
-    return await member.findAll(
+    return await k_member.findAll(
         {where: {
-            userEmail: req.body.email
+            user_email: req.body.email
             }
         });
 }
 
+//회원찾기
+exports.checkMember = async (req, res)=>{
+    return await k_member.findOne({
+        where: {
+            id: req.body.userName
+        }
+    })
+}
+
+
+
 //멤버저장.
 exports.memberCreate = async (req, res, salt, encryptionUserPw)=>{
     // 멤버테이블에 저장 (insert)
-    await member.create({
-        userEmail: req.body.email,
-        userPw: encryptionUserPw,
-        userName: req.body.userName,
+    await k_member.create({
+        user_email: req.body.email,
+        user_pw: encryptionUserPw,
+        user_name: req.body.userName,
         salt: salt,
-        authNum: req.body.authNumber
+        auth_num: req.body.authNumber
     });
 }
