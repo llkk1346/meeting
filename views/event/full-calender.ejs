@@ -166,12 +166,13 @@
                 </div>
             </div>
             <input type="hidden" id="userName" name="userName" value=<%=findUserUID%>>
+            <input type="hidden" id="peopleCount" name="peopleCount">
         </form>    
         </div>
         
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
-          <button type="button" class="btn btn-primary" onclick="saveMeeting()">예약</button>
+          <button type="button" id="checkSave" class="btn btn-primary" onclick="saveMeeting()">예약</button>
         </div>
       </div>
     </div>
@@ -179,8 +180,10 @@
 </body>
 
 <script>
-// 인원수
-var count;
+// 수정 저장 구분 플래그 0 =저장 1 = 수정
+var updateFlag = 0;
+//업데이트할 user_id 값
+var id;
 
 
     (function(){
@@ -209,6 +212,7 @@ var count;
                     nowIndicator: true, // 현재 시간 마크
                     dayMaxEvents: true, // 이벤트가 오버되면 높이 제한 (+ 몇 개식으로 표현)
                     locale: 'ko', // 한국어 설정
+                    //hiddenDays:[0,6],
                     eventAdd: function(obj) { // 이벤트가 추가되면 발생하는 이벤트
                         console.log(obj);
                     },
@@ -219,27 +223,24 @@ var count;
                         console.log(obj);
                     },
                     select: function(arg) { // 캘린더에서 드래그로 이벤트를 생성할 수 있다.
+                        updateFlag = 0;
+                        $('.modal').on('hidden.bs.modal', function(e){
+                            $(this).find('form')[0].reset();
+                        })
                         let meetingStart = document.getElementById("meetingDateStartYMD");
                         let meetingEnd = document.getElementById("meetingDateEndYMD");
 
-                        meetingStart.value = arg.start.toISOString().slice(0,10);
-                        //meetingEnd.value = arg.end.toISOString().slice(0,10);
+                        //시작일 하루 밀리는 거 방지 하기위함.
+                        meetingStart.value = new Date(arg.start.getTime() - (arg.start.getTimezoneOffset() * 60000)).toISOString().slice(0,10);
                         meetingEnd.value = arg.end.toISOString().slice(0,10);
-                        
-                        
-                        
+                        console.log("D_D : ",new Date().toISOString().slice(0,10));
+                        console.log("A_A : ",new Date(arg.start.getTime() - (arg.start.getTimezoneOffset() * 60000)).toISOString().slice(0,10));
+                        //이전날짜 클릭금지.
+                        if(new Date(arg.start.getTime() - (arg.start.getTimezoneOffset() * 60000)).toISOString().slice(0,10) < new Date().toISOString().slice(0,10)){
+                            alert("이전날짜는 클릭할수 없습니다.");
+                            return false;
+                        }
                         document.getElementById('myModals').click();
-
-                        
-                        // calendar.addEvent({
-                        //     title: document.getElementById('meetingTitle').value,
-                        //     start: document.getElementById('meetingDateStartYMD').value,
-                        //     end: document.getElementById('meetingDateEndYMD').value,
-                        //     //allDay: arg.allDay
-                        // })
-                        
-                        // calendar.unselect()
-                        
                     },
                     // 이벤트
                     // title: '' -> String 이벤트에 표시될 제목
@@ -252,37 +253,163 @@ var count;
                             url: "/event/search",
                             dataType: "json",
                             success: function(data){
-                                console.log(data);
                                 let list = data;
+                                //document.getElementById('peoplesCount').value;
+                                let backColor;
                                 let events = list.map(function(item){
+                                    if(item.room_name == 1){
+                                        backColor = '#5C6AC4';
+                                    } else if( item.room_name ==2){
+                                        backColor = '#FC4700'
+                                    }else if( item.room_name ==3){
+                                        backColor = '#7DCD00'
+                                    }else if( item.room_name ==4){
+                                        backColor = '#770055'
+                                    }
                                     return{
                                         groupId: item.user_name,
                                         title: item.title,
                                         start: item.start_date.slice(0,19),
-                                        end: item.end_date.slice(0,19)
+                                        end: item.end_date.slice(0,19),
+                                        backgroundColor: backColor
                                     }
                                 })
+                                console.log("events : ",events);
                                 succcessCallback(events);
                             },
                             error: function(error){
                                 console.log(error);
                             }
                         });
+                    },
+                    eventClick:function(events){
+                        let startDate = new Date(events.event.start);
+                        let endDate = new Date(events.event.end);
+                        startDate = dateFormat(startDate);
+                        endDate = dateFormat(endDate);
+
+                        $.ajax({
+                            type: "POST",
+                            url: "/event/reservation/"+events.event.groupId,
+                            data: {
+                                "dbStartDate" : startDate,
+                                "dbEndDate" : endDate
+                            },
+                            success: function(result){
+                                console.log(result);
+                                let startH  =""+result.start_date.slice(11).substring(0,2); //예약한 시간 ex ) 08:00:00 => slice(11)의 결과 여기서 substring으로 앞 2글자 빼온다.
+                                let startM = ""+result.start_date.slice(14).substring(0,2); //예약한 시간 ex ) 00:00 => slice(14)의 결과 여기서 substring으로 앞 2글자 빼온다.
+                                
+                                let endH  =""+result.end_date.slice(11).substring(0,2);
+                                let endM = ""+result.end_date.slice(14).substring(0,2);
+                                
+                                if(startH.substring(0,1)==="0"){
+                                    startH = startH.substring(1,2);
+                                }
+                                if(startM.substring(0,1)==="0"){
+                                    startM = startM.substring(1,2);
+                                }
+                                if(endH.substring(0,1)==="0"){
+                                    endH = endH.substring(1,2);
+                                }
+                                if(endM.substring(0,1)==="0"){
+                                    endM = endM.substring(1,2);
+                                }
+                                //예약정보 조회결과 클릭시 타이틀에 값넣어주기
+                                document.getElementById("meetingTitle").value = result.title;
+                                //예약정보 조회결과 클릭시 예약한 회의실 값으로 변경
+                                $("#meetingRoom").val(result.room_name).attr("selected", "selected");
+                                //예약정보 조회결과 클릭시 예약시작한 날짜 로 셋팅
+                                //ex ) result.start_date => ex) 2022-01-01 08:00:00
+                                document.getElementById("meetingDateStartYMD").value = result.start_date.slice(0,10); 
+                                //예약정보 조회결과 클릭시 예약끝나는 날짜 로 셋팅
+                                document.getElementById("meetingDateEndYMD").value = result.end_date.slice(0,10);
+                                
+                                //예약정보 조회결과 클릭시 예약한 날짜 시작시간 세팅
+                                $("#meetingStartTimeY").val(startH).attr("selected", "selected");
+                                //예약정보 조회결과 클릭시 예약한 날짜 시작분 세팅
+                                $("#meetingStartTimeM").val(startM).attr("selected", "selected");
+                                //예약정보 조회결과 클릭시 예약끝난 날짜 끝시간 세팅
+                                $("#meetingEndTimeY").val(endH).attr("selected", "selected");
+                                //예약정보 조회결과 클릭시 예약끝난 날짜 끝분 세팅
+                                $("#meetingEndTimeM").val(endM).attr("selected", "selected");
+                                //예약정보 조회결과 클릭시 입력한 회의내용 값 세팅
+                                document.getElementById("meetingContent").value = result.content;
+                                //예약정보 조회결과 클릭시 입력한 회의인원 수 세팅
+                                $("#peoples").val(result.count).attr("selected", "selected");
+                                
+                                //수정인지 저장인지 구분하는 플래그.
+                                updateFlag = 1;
+                                //수정할 예약정보
+                                id= result.id;
+                                
+                                //글작성자 확인
+                                let checkUser = document.getElementById('userName').value;
+                                //modal창 오픈
+                                if(result.user_name==checkUser){
+                                    document.getElementById('meetingTitle').disabled = false;
+                                    document.getElementById('meetingRoom').disabled = false;
+                                    document.getElementById('meetingDateStartYMD').disabled = false;
+                                    document.getElementById('meetingDateEndYMD').disabled = false;
+                                    document.getElementById('meetingStartTimeY').disabled = false;
+                                    document.getElementById('meetingStartTimeM').disabled = false;
+                                    document.getElementById('meetingEndTimeY').disabled = false;
+                                    document.getElementById('meetingEndTimeM').disabled = false;
+                                    document.getElementById('meetingContent').disabled = false;
+                                    document.getElementById('peoples').disabled = false;
+                                    $("#checkSave").show();
+                                    document.getElementById('myModals').click();
+                                } else {
+                                    document.getElementById('meetingTitle').disabled = true;
+                                    document.getElementById('meetingRoom').disabled = true;
+                                    document.getElementById('meetingDateStartYMD').disabled = true;
+                                    document.getElementById('meetingDateEndYMD').disabled = true;
+                                    document.getElementById('meetingStartTimeY').disabled = true;
+                                    document.getElementById('meetingStartTimeM').disabled = true;
+                                    document.getElementById('meetingEndTimeY').disabled = true;
+                                    document.getElementById('meetingEndTimeM').disabled = true;
+                                    document.getElementById('meetingContent').disabled = true;
+                                    document.getElementById('peoples').disabled = true;
+                                    $("#checkSave").hide();
+                                    document.getElementById('myModals').click();
+                                }
+                                
+                            },
+                            error: function(error){
+                                console.log(error);
+                            }
+                        })
                     }
             });
             // 캘린더 랜더링
             calendar.render();
         });
     })();
+//날짜변환
+function dateFormat(date) {
+    let month = date.getMonth() + 1;
+    let day = date.getDate();
+    let hour = date.getHours();
+    let minute = date.getMinutes();
+    let second = date.getSeconds();
 
+    month = month >= 10 ? month : '0' + month;
+    day = day >= 10 ? day : '0' + day;
+    hour = hour >= 10 ? hour : '0' + hour;
+    minute = minute >= 10 ? minute : '0' + minute;
+    second = second >= 10 ? second : '0' + second;
+
+    return date.getFullYear() + '-' + month + '-' + day + ' ' + hour + ':' + minute + ':' + second;
+}
+//예약일정 저장
 function saveMeeting(){
-
+    if(updateFlag ===0){ //저장
     let formData = $("#meetingForm").serialize();
 
     //1. DB에 입력 데이터 저장
     $.ajax({
             type: "POST",        
-            url: "/event/events",
+            url: "/event/reservation",
             data: formData,
             success: function(result){
                 console.log(result);
@@ -298,6 +425,9 @@ function saveMeeting(){
                 console.log(err);
             }
         });
+    } else {
+        updateReservation();
+    }
     // calendar.addEvent({
     //     title: meetingTitle.value,
     //     start: meetingStart.value,
@@ -306,8 +436,30 @@ function saveMeeting(){
     //                 })
 }
 
-
+function updateReservation(){
+    let formData = $("#meetingForm").serialize();
+    console.log("수정~");
+    //1. DB에 입력 데이터 저장
+    $.ajax({
+            type: "PUT",        
+            url: "/event/reservation/"+id,
+            data: formData,
+            success: function(result){
+                window.location.href="http://localhost:3000/event/events";
+               
+            },
+            error: function(err){
+                console.log(err);
+            }
+        });
+}
 $(document).ready(function(){
+    let a = document.getElementById('userName').value;
+    console.log(a);
+    console.log(a=="");
+
+    if(a=="") //손님이면
+
     $("#meetingStartTimeY option:eq(0)").prop("selected", true);
     $("#meetingStartTimeM option:eq(0)").prop("selected", true);
     $("#meetingEndTimeY option:eq(0)").prop("selected", true);

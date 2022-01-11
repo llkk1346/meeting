@@ -5,7 +5,14 @@ module.exports = {
     "password": process.env.DB_PASSWORD,
     "database": "practice",
     "host": process.env.HOST,
-    "dialect": "mysql"
+    "dialect": "mysql",
+    "timezone": "+09:00",
+    "dialectOptions": {
+      "charset": "utf8mb4",
+      "timezone":"+09:00",
+      "dateStrings": true,
+      "typeCast": true
+    }
   },
   "test": {
     "username": "root",

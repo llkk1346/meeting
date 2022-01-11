@@ -4,11 +4,11 @@ const LocalStrategy = require('passport-local').Strategy;
 const dayjs = require('dayjs');
 const Event = require('../service/eventService.js');
 const {meeting_room} = require('../../models');
+const {reservation} = require('../../models');
 
 router.get('/events', async (req, res, next)=>{
     // 1. 회의실 목록 불러오기.
     let meetingRoom = await Event.findMeetingRoom(req, res);
-    console.log(meetingRoom);
     if(req.user === undefined) {
         res.render('event/full-calender',{
             'title': '예약일자',
@@ -41,6 +41,7 @@ router.get('/search', async(req, res)=>{
     
 })
 
+//회의실 삭제 api
 router.delete("/delete/:id", async (req, res)=>{
     console.log(req.params.id);
     await meeting_room.destroy({where:{
@@ -48,13 +49,37 @@ router.delete("/delete/:id", async (req, res)=>{
     }});
 })
 
+//예약정보 삭제 api
+router.delete("/reservation/delete/:id", async (req, res)=>{
+    await reservation.destroy({
+        where:{
+            user_name: req.params.id
+        }
+    })
+})
+
+//회의실 저장
 router.post("/save", async (req, res)=>{
     await Event.createMeetingRoom(req, res);
 })
 
-router.post("/events", async (req, res)=>{
+//예약정보 저장
+router.post("/reservation", async (req, res)=>{
     // 1. 예약정보 저장
     let result = await Event.saveMeeting(req, res);
+    res.send(result);
+})
+
+//예약정보에 필요한정보
+router.post("/reservation/:id", async (req, res)=>{
+    let result = await Event.findsaveMeeting(req, res);
+    res.send(result);
+});
+
+//예약정보 수정
+router.put("/reservation/:id", async (req, res)=>{
+    console.log("DADFSDFA");
+    let result = await Event.updateReservation(req, res);
     res.send(result);
 })
 
